@@ -27,3 +27,6 @@ $("button").click(function()
     searcher.search( $("input").val() );
 });
 ```
+
+
+Until I sort out the examples or readme (or even, god forbid, some docs) properly, the best thing to do is probably to check out the source, particularly stuff from line 290 onwards.
