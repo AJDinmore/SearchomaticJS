@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Searchomatic Advanced Demo</title>
+    <script type="text/javascript" src="../jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="../src/Searchomatic.js"></script>
+    <script type="text/javascript" src="../jquery-ui-1.11.0.custom/jquery-ui.js"></script>
+    <link rel="stylesheet" type="text/css" href="../jquery-ui-1.11.0.custom/jquery-ui.css">
+    <script type="text/javascript">
+    var searcher;
+    $(function()
+    {
+        var searchOptions = {
+            
+            container       : "#searchThis",
+            section         : "div.section",
+            filterContainer : "#filters",
+            
+            content : {
+                "h2"                : { weight: 2 },
+                "div.body"          : { weight: 1 },
+                "div.keywords"      : { weight: 4 },
+                "ul.categories li"  : { filter: true }
+            },
+
+            replace : { "cats":"cat" }
+        };
+        
+        searcher = new Searchomatic( searchOptions );
+
+
+    function split( val ) {
+      return val.split( /\s+/ );
+    }
+    function extractLast( term ) {
+      return split( term ).pop();
+    }
+    var availableTags = searcher.getMapWords();
+    $( "#searchBox" )
+    .keyup(function()
+        {
+            var numResults = searcher.search( $("#searchBox").val() );
+        })
+      // don't navigate away from the field on tab when selecting an item
+      .bind( "keydown", function( event ) {
+        if ( event.keyCode === $.ui.keyCode.TAB &&
+            $( this ).autocomplete( "instance" ).menu.active ) {
+          event.preventDefault();
+        }
+      })
+      .autocomplete({
+        minLength: 0,
+        source: function( request, response ) {
+          // delegate back to autocomplete, but extract the last term
+          response( $.ui.autocomplete.filter(
+            availableTags, extractLast( request.term ) ) );
+        },
+        focus: function() {
+          // prevent value inserted on focus
+          return false;
+        },
+        select: function( event, ui ) {
+          var terms = split( this.value );
+          // remove the current input
+          terms.pop();
+          // add the selected item
+          terms.push( ui.item.value );
+          // add placeholder to get the comma-and-space at the end
+          terms.push( "" );
+          this.value = terms.join( " " );
+          searcher.search( $("#searchBox").val() );
+          return false;
+        }
+      });
+
+/*
+        $("#searchBox").keyup(function()
+        {
+            var numResults = searcher.search( $("#searchBox").val() );
+        });
+*/
+        $("#filterclear").click(function()
+        {
+            searcher.clearFilter();
+        });
+
+        $("#clearsearch").click(function()
+        {
+            $("#searchBox").val("");
+            searcher.search();
+        });
+
+    });
+    </script>
+    <style type="text/css">
+        .categories, .keywords { display: none; }
+
+        #filters{ margin-top: 10px; }
+
+        .filter
+        {
+            display: inline-block;;
+            margin: 0 10px 10px 0;
+            background-color: #ccc;
+            border-radius: 3px;
+            padding: 2px 4px;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .filter span:before{ content: '('; }
+        .filter span:after{ content: ')'; }
+
+        .filter.active{ color: #000; }
+        .filter.inactive{ color: #aaa; }
+    </style>
+</head>
+<body>
+    <h1>Searchomatic Demo</h1>
+
+    <input type="text" id="searchBox">
+    <button id="clearsearch">Show all</button>
+    <button id="filterclear">Reset Filter</button>
+
+    <div id="filters"></div>
+
+    <div id="searchThis">
+
+        <div class="section" id="foo">
+            <h2>Section One</h2>
+            <div class="body">
+                <p>This is the first section.</p>
+                <p>It mentions cats three times, but will come up second on a search for cats bacause cats is not a keyword.</p>
+            </div>
+            <div class="keywords">explanation, paragraphs</div>
+            <ul class="categories">
+                <li>Sections one and two</li>
+                <li>Odd numbered sections</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Section Two</h2>
+            <div class="body">
+                <p>This is the second section.</p>
+                <p>It only mentions cats once, but will come up first on a search because it's also a keyword which is weighted 4.</p>
+            </div>
+            <div class="keywords">explanation paragraphs cats</div>
+            <ul class="categories">
+                <li>Sections one and two</li>
+                <li>Sections two and three</li>
+                <li>Even numbered sections</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Section Three</h2>
+            <div class="body">
+                This sections does not mention cats.
+            </div>
+            <div class="keywords">LIES</div>
+            <ul class="categories">
+                <li>Sections three and four</li>
+                <li>Sections two and three</li>
+                <li>Odd numbered sections</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Section Four</h2>
+            <div class="body">
+                This section doesn't have keywords, but it does have <span style="font-style:italic">styling</span>.
+            </div>
+            <ul class="categories">
+                <li>Sections three and four</li>
+                <li>Even numbered sections</li>
+            </ul>
+        </div>
+
+    </div>
+</body>
+</html>
