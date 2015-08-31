@@ -24,7 +24,6 @@ Searchomatic.prototype =
     
     // Settings
     minWordLength       : 3,
-    ignoreNumbers       : true,
     
     // Data
     map                 : {},
