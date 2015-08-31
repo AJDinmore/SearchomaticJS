@@ -19,7 +19,8 @@ var searcher = new Searchomatic({
         "div.keywords"      : { weight:  4 },
 
         "ul.categories li"  : { filter:  true,
-                                suggest: true } 
+                                suggest: true }
+    }
 });
 
 $("button").click(function()
